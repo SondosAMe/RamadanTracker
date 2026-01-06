@@ -26,7 +26,15 @@ export function TarawehTracker({
         
         <Checkbox
           checked={completed}
-          onChange={() => onToggle('home')}
+          onChange={() => {
+            if (completed) {
+              // Uncomplete when clicking the checkbox
+              onToggle('home', true)
+            } else {
+              // Complete with current location or default to home
+              onToggle(location || 'home', false)
+            }
+          }}
           size="lg"
         />
       </div>

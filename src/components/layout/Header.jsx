@@ -11,7 +11,7 @@ export function Header({ title, showLocation = false }) {
   const ramadan = isRamadan(today)
   
   return (
-    <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur-xl border-b border-secondary/10">
+    <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur-xl border-b border-secondary/10 pt-[env(safe-area-inset-top,0px)]">
       {/* Decorative top border */}
       <div className="h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
       

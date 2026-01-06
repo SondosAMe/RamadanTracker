@@ -112,14 +112,21 @@ export function AppProvider({ children }) {
   }, [setTafsir])
 
   // Taraweh tracking
-  const toggleTaraweh = useCallback((location = 'home') => {
+  const toggleTaraweh = useCallback((location = 'home', uncomplete = false) => {
     const today = formatDateKey()
     setTaraweh(prev => {
       const current = prev[today]
-      if (current?.completed) {
-        // Uncomplete
+      if (uncomplete && current?.completed) {
+        // Uncomplete when explicitly requested
         const { [today]: _, ...rest } = prev
         return rest
+      }
+      if (current?.completed) {
+        // If already completed, just update the location (don't uncomplete)
+        return {
+          ...prev,
+          [today]: { completed: true, location }
+        }
       }
       return {
         ...prev,

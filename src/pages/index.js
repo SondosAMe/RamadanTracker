@@ -1,0 +1,12 @@
+export { Dashboard } from './Dashboard'
+export { PrayerPage } from './PrayerPage'
+export { QuranPage } from './QuranPage'
+export { TafsirPage } from './TafsirPage'
+export { AzkarPage } from './AzkarPage'
+export { TasbeehPage } from './TasbeehPage'
+export { TarawehPage } from './TarawehPage'
+export { DeedsPage } from './DeedsPage'
+export { PeriodPage } from './PeriodPage'
+export { SettingsPage } from './SettingsPage'
+export { MorePage } from './MorePage'
+

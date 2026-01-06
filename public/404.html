@@ -5,19 +5,31 @@
   <title>Ramadan Tracker</title>
   <script type="text/javascript">
     // SPA redirect script for GitHub Pages
-    // Converts 404 to index.html with proper path
-    var pathSegmentsToKeep = 0;
-    var l = window.location;
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-      l.hash
-    );
+    // Handles both root and subdirectory deployments
+    (function() {
+      var pathSegmentsToKeep = 1; // Keep the repository name segment
+      var l = window.location;
+      var pathname = l.pathname;
+      
+      // If we're at the root of the repo (e.g., /RamadanTracker/), redirect to index
+      if (pathname === '/RamadanTracker/' || pathname === '/RamadanTracker') {
+        l.replace(l.origin + '/RamadanTracker/index.html');
+        return;
+      }
+      
+      // For other paths, redirect to index with hash routing
+      var basePath = '/RamadanTracker';
+      var redirectPath = basePath + '/index.html';
+      
+      if (pathname !== basePath + '/index.html') {
+        var hash = pathname.replace(basePath, '') || '/';
+        l.replace(l.origin + redirectPath + hash);
+      }
+    })();
   </script>
 </head>
 <body>
+  <p>Redirecting...</p>
 </body>
 </html>
 

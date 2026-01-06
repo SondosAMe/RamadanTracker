@@ -15,11 +15,25 @@ import {
   MorePage
 } from './pages'
 
+// Get base path for GitHub Pages deployment
+const getBasePath = () => {
+  // If we're on GitHub Pages, extract the repo name from the path
+  if (window.location.pathname.startsWith('/') && window.location.pathname.split('/').length > 2) {
+    const pathParts = window.location.pathname.split('/').filter(p => p)
+    if (pathParts.length > 0 && pathParts[0] !== '') {
+      return `/${pathParts[0]}/`
+    }
+  }
+  return '/'
+}
+
+const basePath = getBasePath()
+
 function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={basePath}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/prayer" element={<PrayerPage />} />

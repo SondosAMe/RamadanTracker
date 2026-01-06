@@ -35,6 +35,14 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: npm run build
         
+      - name: Verify build output
+        run: |
+          echo "Build output contents:"
+          ls -la dist/
+          echo "---"
+          echo "index.html preview:"
+          head -n 25 dist/index.html
+        
       - name: Setup Pages
         uses: actions/configure-pages@v4
         

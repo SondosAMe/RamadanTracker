@@ -11,8 +11,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 export function AzkarPage() {
   const { 
     getAzkarStatus, 
-    toggleAzkar, 
     getAzkarCompletedDates,
+    getAzkarCompletion,
     getTasbeehCount,
     incrementTasbeeh,
     resetTasbeeh
@@ -24,6 +24,8 @@ export function AzkarPage() {
   const azkarStatus = getAzkarStatus()
   const morningDates = getAzkarCompletedDates('morning')
   const eveningDates = getAzkarCompletedDates('evening')
+  const morningCompletion = getAzkarCompletion('morning')
+  const eveningCompletion = getAzkarCompletion('evening')
   
   const today = formatDateKey()
   const count = getTasbeehCount(selectedPhrase.id)

@@ -97,7 +97,6 @@ export function AzkarDetailPage({ type = 'morning' }) {
                 count={status.count}
                 completed={status.completed}
                 onIncrement={() => incrementAzkarItem(type, item.id)}
-                onToggleComplete={() => toggleAzkarItem(type, item.id)}
               />
             )
           })}

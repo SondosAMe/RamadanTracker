@@ -1,18 +1,22 @@
 import { useState } from 'react'
-import { Card, Checkbox, CheckCircleIcon } from '../common'
+import { Card, CheckCircleIcon } from '../common'
 
 export function AzkarItem({
   item,
   count = 0,
   completed = false,
-  onIncrement,
-  onToggleComplete
+  onIncrement
 }) {
   const [isAnimating, setIsAnimating] = useState(false)
   const percentage = item.repetitions > 0 ? Math.min(100, (count / item.repetitions) * 100) : 0
   const isGoalReached = count >= item.repetitions
 
   const handleTap = () => {
+    // Don't allow incrementing if goal is already reached
+    if (isGoalReached) {
+      return
+    }
+
     // Vibration feedback if available
     if ('vibrate' in navigator) {
       navigator.vibrate(10)
@@ -53,12 +57,13 @@ export function AzkarItem({
             <button
               onClick={handleTap}
               type="button"
+              disabled={isGoalReached}
               className={`
                 relative w-20 h-20 rounded-full flex items-center justify-center
-                transition-all duration-150 cursor-pointer select-none
+                transition-all duration-150 select-none
                 ${isGoalReached 
-                  ? 'bg-gradient-to-br from-success to-success-light shadow-md shadow-success/30' 
-                  : 'bg-gradient-to-br from-primary to-primary-light shadow-md shadow-primary/30'
+                  ? 'bg-gradient-to-br from-success to-success-light shadow-md shadow-success/30 cursor-not-allowed opacity-90' 
+                  : 'bg-gradient-to-br from-primary to-primary-light shadow-md shadow-primary/30 cursor-pointer hover:scale-105'
                 }
                 ${isAnimating ? 'scale-90' : 'scale-100'}
                 pulse-on-tap
@@ -117,23 +122,12 @@ export function AzkarItem({
           </div>
           
           {/* Goal reached message */}
-          {isGoalReached && !completed && (
+          {isGoalReached && (
             <div className="flex items-center gap-2 text-success text-sm mt-3 slide-up">
               <CheckCircleIcon className="w-4 h-4" />
-              <span>Goal reached! Mark as completed</span>
+              <span>Goal reached! MashaAllah!</span>
             </div>
           )}
-        </div>
-        
-        {/* Checkbox */}
-        <div className="pt-2">
-          <Checkbox
-            checked={completed}
-            onChange={onToggleComplete}
-            disabled={!isGoalReached}
-            size="lg"
-            className={!isGoalReached ? 'opacity-50' : ''}
-          />
         </div>
       </div>
     </Card>

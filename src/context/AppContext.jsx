@@ -4,6 +4,7 @@ import { useGeolocation } from '../hooks/useGeolocation'
 import { getCityFromCoords } from '../api/aladhan'
 import { STORAGE_KEYS, DEFAULT_SETTINGS } from '../utils/constants'
 import { formatDateKey } from '../utils/dateHelpers'
+import { MORNING_AZKAR, EVENING_AZKAR } from '../utils/azkarData'
 
 const AppContext = createContext()
 
@@ -140,21 +141,34 @@ export function AppProvider({ children }) {
       const items = type === 'morning' ? morning : evening
       const current = items[itemId] || { count: 0, completed: false }
       
+      // Get the required repetitions from azkar data
+      const azkarList = type === 'morning' ? MORNING_AZKAR : EVENING_AZKAR
+      const item = azkarList.find(a => a.id === itemId)
+      const requiredRepetitions = item?.repetitions || 1
+      
+      // Don't increment if already at or past goal
+      if (current.count >= requiredRepetitions) {
+        return prev
+      }
+      
+      const newCount = current.count + 1
+      const isGoalReached = newCount >= requiredRepetitions
+      
       return {
         ...prev,
         [today]: {
           morning: type === 'morning' ? {
             ...morning,
             [itemId]: {
-              count: current.count + 1,
-              completed: current.completed
+              count: newCount,
+              completed: isGoalReached // Auto-complete when goal is reached
             }
           } : morning,
           evening: type === 'evening' ? {
             ...evening,
             [itemId]: {
-              count: current.count + 1,
-              completed: current.completed
+              count: newCount,
+              completed: isGoalReached // Auto-complete when goal is reached
             }
           } : evening
         }

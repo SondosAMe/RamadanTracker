@@ -53,7 +53,9 @@ export function Dashboard() {
   const prayerPercentage = Math.round((prayersCompleted / 5) * 100)
   
   // Calculate Quran progress
-  const juzCompleted = quran.completedJuz?.length || 0
+  // Get unique completed Juz from daily tracking
+  const allJuz = Object.values(quran.dailyJuz || {}).filter(j => j !== null && j !== undefined)
+  const juzCompleted = [...new Set(allJuz)].length
   const quranPercentage = Math.round((juzCompleted / 30) * 100)
   
   // Ramadan countdown

@@ -73,13 +73,17 @@ export function useHistoricalData(period = 'all') {
             return (completed / items.length) * 100
           })()
 
+      // Calculate Quran completion for this day (one Juz per day)
+      const dayJuz = quran.dailyJuz?.[dateKey]
+      const quranPercentage = dayJuz !== null && dayJuz !== undefined ? 100 : 0
+
       // Calculate overall score (weighted average)
       const overallScore = Math.round(
         (prayerPercentage * 0.3) +
         (morningAzkar * 0.15) +
         (eveningAzkar * 0.15) +
         ((dayTaraweh?.completed ? 100 : 0) * 0.1) +
-        ((quran.completedJuz?.length || 0) / 30 * 100 * 0.2) +
+        (quranPercentage * 0.2) +
         (Math.min(dayDeeds.length * 10, 100) * 0.1)
       )
 
@@ -101,11 +105,8 @@ export function useHistoricalData(period = 'all') {
           location: dayTaraweh?.location || null
         },
         quran: {
-          juzCompleted: quran.completedJuz?.filter(juz => {
-            // Check if juz was completed on or before this date
-            // For simplicity, we'll use current juz count
-            return true
-          }).length || 0
+          juzCompleted: dayJuz !== null && dayJuz !== undefined ? 1 : 0,
+          juzNumber: dayJuz || null
         },
         deeds: {
           count: dayDeeds.length

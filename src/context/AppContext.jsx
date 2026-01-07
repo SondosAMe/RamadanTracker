@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useEffect } from 'react'
+import { createContext, useContext, useCallback, useEffect, useMemo } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { getCityFromCoords } from '../api/aladhan'
@@ -11,7 +11,35 @@ const AppContext = createContext()
 export function AppProvider({ children }) {
   const [settings, setSettings] = useLocalStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS)
   const [prayers, setPrayers] = useLocalStorage(STORAGE_KEYS.PRAYERS, {})
-  const [quran, setQuran] = useLocalStorage(STORAGE_KEYS.QURAN, { completedJuz: [] })
+  // Initialize quran state - handle backward compatibility
+  const [quranRaw, setQuranRaw] = useLocalStorage(STORAGE_KEYS.QURAN, { dailyJuz: {} })
+  
+  // Migrate old format if needed and ensure dailyJuz exists
+  const quran = useMemo(() => {
+    // If old format exists (completedJuz array), we'll just ensure dailyJuz exists
+    if (quranRaw.completedJuz && Array.isArray(quranRaw.completedJuz) && !quranRaw.dailyJuz) {
+      // Old format detected - return with empty dailyJuz (user can re-mark)
+      return {
+        ...quranRaw,
+        dailyJuz: {}
+      }
+    }
+    return {
+      ...quranRaw,
+      dailyJuz: quranRaw.dailyJuz || {}
+    }
+  }, [quranRaw])
+  
+  const setQuran = useCallback((updater) => {
+    setQuranRaw(prev => {
+      const updated = typeof updater === 'function' ? updater(prev) : updater
+      // Ensure dailyJuz always exists
+      return {
+        ...updated,
+        dailyJuz: updated.dailyJuz || {}
+      }
+    })
+  }, [setQuranRaw])
   const [azkar, setAzkar] = useLocalStorage(STORAGE_KEYS.AZKAR, {})
   const [tafsir, setTafsir] = useLocalStorage(STORAGE_KEYS.TAFSIR, [])
   const [taraweh, setTaraweh] = useLocalStorage(STORAGE_KEYS.TARAWEH, {})
@@ -61,21 +89,42 @@ export function AppProvider({ children }) {
     return prayers[date] || {}
   }, [prayers])
 
-  // Quran tracking
+  // Quran tracking - one Juz per day
   const toggleJuz = useCallback((juzNumber) => {
+    const today = formatDateKey()
     setQuran(prev => {
-      const completed = prev.completedJuz || []
-      const isCompleted = completed.includes(juzNumber)
+      const dailyJuz = prev.dailyJuz || {}
+      const todayJuz = dailyJuz[today]
       
+      // If this juz is already marked for today, unmark it
+      // Otherwise, mark this juz for today (replacing any previous juz for today)
       return {
         ...prev,
-        completedJuz: isCompleted
-          ? completed.filter(j => j !== juzNumber)
-          : [...completed, juzNumber],
+        dailyJuz: {
+          ...dailyJuz,
+          [today]: todayJuz === juzNumber ? null : juzNumber
+        },
         lastUpdated: formatDateKey()
       }
     })
   }, [setQuran])
+
+  // Get today's Juz
+  const getTodayJuz = useCallback((date = formatDateKey()) => {
+    return quran.dailyJuz?.[date] || null
+  }, [quran])
+
+  // Check if today's Juz is completed
+  const isTodayJuzCompleted = useCallback((date = formatDateKey()) => {
+    return quran.dailyJuz?.[date] !== null && quran.dailyJuz?.[date] !== undefined
+  }, [quran])
+
+  // Get all completed Juz (for backward compatibility and progress tracking)
+  const getCompletedJuz = useCallback(() => {
+    // Return unique juz numbers from all daily entries
+    const allJuz = Object.values(quran.dailyJuz || {}).filter(j => j !== null && j !== undefined)
+    return [...new Set(allJuz)].sort((a, b) => a - b)
+  }, [quran])
 
   // Azkar tracking (legacy - for backward compatibility)
   const toggleAzkar = useCallback((type) => {
@@ -366,6 +415,9 @@ export function AppProvider({ children }) {
     // Quran
     quran,
     toggleJuz,
+    getTodayJuz,
+    isTodayJuzCompleted,
+    getCompletedJuz,
     
     // Azkar
     azkar,

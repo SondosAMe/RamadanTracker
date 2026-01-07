@@ -99,17 +99,18 @@ export function useDailyTodos() {
       progress: 0
     })
 
-    // Quran
-    const juzCompleted = quran.completedJuz?.length || 0
+    // Quran - one Juz per day
+    const todayJuz = quran.dailyJuz?.[today] || null
+    const isJuzCompleted = todayJuz !== null && todayJuz !== undefined
     items.push({
       id: 'quran',
       type: 'quran',
       label: 'Quran Reading',
       arabic: 'القرآن',
-      completed: juzCompleted > 0,
+      completed: isJuzCompleted,
       notRequired: isPeriod,
-      progress: (juzCompleted / 30) * 100,
-      count: juzCompleted
+      progress: isJuzCompleted ? 100 : 0,
+      count: todayJuz || 0
     })
 
     return items

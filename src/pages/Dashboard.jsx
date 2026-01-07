@@ -15,6 +15,7 @@ import {
   FireIcon,
   IslamicDivider
 } from '../components/common'
+import { DailyTodoList } from '../components/dashboard'
 import { PrayerCountdown } from '../components/prayer'
 import { useApp } from '../context/AppContext'
 import { usePrayerTimes } from '../hooks/usePrayerTimes'
@@ -69,6 +70,11 @@ export function Dashboard() {
   return (
     <PageLayout title="Ramadan Tracker" showLocation>
       <div className="space-y-5">
+        {/* Daily Todo List */}
+        <div className="card-animate" style={{ animationDelay: '0s' }}>
+          <DailyTodoList />
+        </div>
+
         {/* Ramadan countdown or status */}
         {!isRamadanNow && daysUntilRamadan > 0 && (
           <Card className="card-animate relative overflow-hidden bg-gradient-to-br from-primary/5 via-secondary/10 to-primary/5 border border-secondary/20">

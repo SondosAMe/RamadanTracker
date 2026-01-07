@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AppProvider } from './context/AppContext'
 import {
   Dashboard,
+  DashboardPage,
   PrayerPage,
   QuranPage,
   TafsirPage,
@@ -14,6 +15,8 @@ import {
   SettingsPage,
   MorePage
 } from './pages'
+import { HistoryView } from './components/dashboard/HistoryView'
+import { AzkarDetailPage } from './components/azkar/AzkarDetailPage'
 
 // Get base path for GitHub Pages deployment
 const getBasePath = () => {
@@ -36,10 +39,14 @@ function App() {
         <BrowserRouter basename={basePath}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/history" element={<HistoryView />} />
             <Route path="/prayer" element={<PrayerPage />} />
             <Route path="/quran" element={<QuranPage />} />
             <Route path="/tafsir" element={<TafsirPage />} />
             <Route path="/azkar" element={<AzkarPage />} />
+            <Route path="/azkar/morning" element={<AzkarDetailPage type="morning" />} />
+            <Route path="/azkar/evening" element={<AzkarDetailPage type="evening" />} />
             <Route path="/tasbeeh" element={<TasbeehPage />} />
             <Route path="/taraweh" element={<TarawehPage />} />
             <Route path="/deeds" element={<DeedsPage />} />

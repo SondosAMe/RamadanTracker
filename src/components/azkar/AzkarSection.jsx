@@ -1,13 +1,15 @@
-import { Checkbox, Card, StreakBadge, SunriseIcon, MoonIcon } from '../common'
+import { useNavigate } from 'react-router-dom'
+import { Card, StreakBadge, SunriseIcon, MoonIcon, ProgressBar } from '../common'
 import { useStreak } from '../../hooks/useStreak'
 
 export function AzkarSection({ 
   type, 
   completed, 
-  onToggle, 
-  completedDates = [] 
+  completedDates = [],
+  completionPercentage = 0
 }) {
   const streak = useStreak(completedDates)
+  const navigate = useNavigate()
   
   const config = {
     morning: {
@@ -28,27 +30,45 @@ export function AzkarSection({
   
   const { title, arabic, Icon, iconColor, time } = config[type]
   
+  const handleClick = () => {
+    navigate(`/azkar/${type}`)
+  }
+  
   return (
-    <Card className={completed ? 'bg-success/5 border border-success/20' : ''}>
+    <Card 
+      className={`
+        cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/20
+        ${completed ? 'bg-success/5 border border-success/20' : ''}
+      `}
+      onClick={handleClick}
+    >
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <div className={`w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center ${iconColor}`}>
             <Icon className="w-6 h-6" />
           </div>
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-text">{title}</h3>
               <span className="arabic text-secondary">{arabic}</span>
             </div>
             <p className="text-sm text-text-light mt-0.5">{time}</p>
+            
+            {/* Progress bar */}
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-text-light">Completion</span>
+                <span className="text-xs font-medium text-text">{completionPercentage}%</span>
+              </div>
+              <ProgressBar 
+                value={completionPercentage} 
+                max={100} 
+                color={completed ? "success" : "primary"}
+                className="h-2"
+              />
+            </div>
           </div>
         </div>
-        
-        <Checkbox
-          checked={completed}
-          onChange={() => onToggle(type)}
-          size="lg"
-        />
       </div>
       
       {streak > 0 && (

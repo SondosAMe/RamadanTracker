@@ -76,30 +76,162 @@ export function AppProvider({ children }) {
     })
   }, [setQuran])
 
-  // Azkar tracking
+  // Azkar tracking (legacy - for backward compatibility)
   const toggleAzkar = useCallback((type) => {
     const today = formatDateKey()
     setAzkar(prev => {
-      const dayAzkar = prev[today] || { morning: false, evening: false }
-      return {
-        ...prev,
-        [today]: {
-          ...dayAzkar,
-          [type]: !dayAzkar[type]
+      const dayAzkar = prev[today] || { morning: {}, evening: {} }
+      // If old format (boolean), migrate to new format
+      if (typeof dayAzkar[type] === 'boolean') {
+        return {
+          ...prev,
+          [today]: {
+            morning: typeof dayAzkar.morning === 'boolean' ? {} : (dayAzkar.morning || {}),
+            evening: typeof dayAzkar.evening === 'boolean' ? {} : (dayAzkar.evening || {})
+          }
         }
       }
+      return prev
     })
   }, [setAzkar])
 
   const getAzkarStatus = useCallback((date = formatDateKey()) => {
-    return azkar[date] || { morning: false, evening: false }
+    const dayAzkar = azkar[date] || { morning: {}, evening: {} }
+    // Check if old format (boolean) for backward compatibility
+    if (typeof dayAzkar.morning === 'boolean' || typeof dayAzkar.evening === 'boolean') {
+      return {
+        morning: dayAzkar.morning === true,
+        evening: dayAzkar.evening === true
+      }
+    }
+    // New format: check if all items are completed
+    const morningItems = Object.values(dayAzkar.morning || {})
+    const eveningItems = Object.values(dayAzkar.evening || {})
+    return {
+      morning: morningItems.length > 0 && morningItems.every(item => item.completed),
+      evening: eveningItems.length > 0 && eveningItems.every(item => item.completed)
+    }
   }, [azkar])
 
   // Get azkar completed dates for streak
   const getAzkarCompletedDates = useCallback((type) => {
     return Object.entries(azkar)
-      .filter(([_, value]) => value[type])
+      .filter(([_, value]) => {
+        // Handle old format
+        if (typeof value[type] === 'boolean') {
+          return value[type] === true
+        }
+        // New format: all items must be completed
+        const items = Object.values(value[type] || {})
+        return items.length > 0 && items.every(item => item.completed)
+      })
       .map(([date]) => date)
+  }, [azkar])
+
+  // Individual azkar item tracking
+  const incrementAzkarItem = useCallback((type, itemId) => {
+    const today = formatDateKey()
+    setAzkar(prev => {
+      const dayAzkar = prev[today] || { morning: {}, evening: {} }
+      // Migrate old format if needed
+      const morning = typeof dayAzkar.morning === 'boolean' ? {} : (dayAzkar.morning || {})
+      const evening = typeof dayAzkar.evening === 'boolean' ? {} : (dayAzkar.evening || {})
+      
+      const items = type === 'morning' ? morning : evening
+      const current = items[itemId] || { count: 0, completed: false }
+      
+      return {
+        ...prev,
+        [today]: {
+          morning: type === 'morning' ? {
+            ...morning,
+            [itemId]: {
+              count: current.count + 1,
+              completed: current.completed
+            }
+          } : morning,
+          evening: type === 'evening' ? {
+            ...evening,
+            [itemId]: {
+              count: current.count + 1,
+              completed: current.completed
+            }
+          } : evening
+        }
+      }
+    })
+  }, [setAzkar])
+
+  const toggleAzkarItem = useCallback((type, itemId) => {
+    const today = formatDateKey()
+    setAzkar(prev => {
+      const dayAzkar = prev[today] || { morning: {}, evening: {} }
+      // Migrate old format if needed
+      const morning = typeof dayAzkar.morning === 'boolean' ? {} : (dayAzkar.morning || {})
+      const evening = typeof dayAzkar.evening === 'boolean' ? {} : (dayAzkar.evening || {})
+      
+      const items = type === 'morning' ? morning : evening
+      const current = items[itemId] || { count: 0, completed: false }
+      
+      return {
+        ...prev,
+        [today]: {
+          morning: type === 'morning' ? {
+            ...morning,
+            [itemId]: {
+              count: current.count,
+              completed: !current.completed
+            }
+          } : morning,
+          evening: type === 'evening' ? {
+            ...evening,
+            [itemId]: {
+              count: current.count,
+              completed: !current.completed
+            }
+          } : evening
+        }
+      }
+    })
+  }, [setAzkar])
+
+  const getAzkarItemCount = useCallback((type, itemId, date = formatDateKey()) => {
+    const dayAzkar = azkar[date] || { morning: {}, evening: {} }
+    // Handle old format
+    if (typeof dayAzkar[type] === 'boolean') {
+      return 0
+    }
+    const items = dayAzkar[type] || {}
+    return items[itemId]?.count || 0
+  }, [azkar])
+
+  const getAzkarItemStatus = useCallback((type, itemId, date = formatDateKey()) => {
+    const dayAzkar = azkar[date] || { morning: {}, evening: {} }
+    // Handle old format
+    if (typeof dayAzkar[type] === 'boolean') {
+      return { count: 0, completed: false }
+    }
+    const items = dayAzkar[type] || {}
+    return items[itemId] || { count: 0, completed: false }
+  }, [azkar])
+
+  const getAzkarCompletion = useCallback((type, date = formatDateKey()) => {
+    const dayAzkar = azkar[date] || { morning: {}, evening: {} }
+    // Handle old format
+    if (typeof dayAzkar[type] === 'boolean') {
+      return { completed: 0, total: 0, percentage: 0 }
+    }
+    const items = Object.values(dayAzkar[type] || {})
+    if (items.length === 0) {
+      return { completed: 0, total: 0, percentage: 0 }
+    }
+    const completed = items.filter(item => item.completed).length
+    const total = items.length
+    return {
+      completed,
+      total,
+      percentage: Math.round((completed / total) * 100)
+    }
   }, [azkar])
 
   // Tafsir tracking
@@ -226,6 +358,11 @@ export function AppProvider({ children }) {
     toggleAzkar,
     getAzkarStatus,
     getAzkarCompletedDates,
+    incrementAzkarItem,
+    toggleAzkarItem,
+    getAzkarItemCount,
+    getAzkarItemStatus,
+    getAzkarCompletion,
     
     // Tafsir
     tafsir,

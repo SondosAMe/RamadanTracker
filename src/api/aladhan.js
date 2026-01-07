@@ -131,3 +131,22 @@ export async function getCityFromCoords(lat, lng) {
   }
 }
 
+/**
+ * Detect if location is in UAE based on coordinates
+ * UAE approximate bounds: 22.5°N to 26°N, 51°E to 56.5°E
+ */
+export function isUAELocation(lat, lng) {
+  return lat >= 22.5 && lat <= 26 && lng >= 51 && lng <= 56.5
+}
+
+/**
+ * Get optimal calculation method for location
+ * Returns method 8 (Gulf Region) for UAE, otherwise uses provided method
+ */
+export function getOptimalMethod(lat, lng, currentMethod = 2) {
+  if (isUAELocation(lat, lng)) {
+    return 8 // Gulf Region method - most accurate for UAE
+  }
+  return currentMethod
+}
+

@@ -42,7 +42,8 @@ export const TASBEEH_PHRASES = [
   { id: 'alhamdulillah', phrase: 'الْحَمْدُ لِلَّهِ', transliteration: 'Alhamdulillah', meaning: 'All praise is due to Allah' },
   { id: 'allahuakbar', phrase: 'اللهُ أَكْبَرُ', transliteration: 'Allahu Akbar', meaning: 'Allah is the Greatest' },
   { id: 'lailaha', phrase: 'لَا إِلٰهَ إِلَّا اللهُ', transliteration: 'La ilaha illallah', meaning: 'There is no god but Allah' },
-  { id: 'astaghfirullah', phrase: 'أَسْتَغْفِرُ اللهَ', transliteration: 'Astaghfirullah', meaning: 'I seek forgiveness from Allah' }
+  { id: 'astaghfirullah', phrase: 'أَسْتَغْفِرُ اللهَ', transliteration: 'Astaghfirullah', meaning: 'I seek forgiveness from Allah' },
+  { id: 'la_hawla', phrase: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ', transliteration: 'La hawla wa la quwwata illa billah', meaning: 'There is no power nor strength except with Allah' }
 ]
 
 // Tasbeeh goal presets

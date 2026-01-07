@@ -46,14 +46,14 @@ export function AzkarPage() {
             <AzkarSection
               type="morning"
               completed={azkarStatus.morning}
-              onToggle={toggleAzkar}
               completedDates={morningDates}
+              completionPercentage={morningCompletion.percentage}
             />
             <AzkarSection
               type="evening"
               completed={azkarStatus.evening}
-              onToggle={toggleAzkar}
               completedDates={eveningDates}
+              completionPercentage={eveningCompletion.percentage}
             />
           </div>
         </section>

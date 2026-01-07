@@ -1,4 +1,5 @@
 export { Dashboard } from './Dashboard'
+export { DashboardPage } from './DashboardPage'
 export { PrayerPage } from './PrayerPage'
 export { QuranPage } from './QuranPage'
 export { TafsirPage } from './TafsirPage'

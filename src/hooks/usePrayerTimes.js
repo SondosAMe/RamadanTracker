@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchPrayerTimes } from '../api/aladhan'
+import { fetchPrayerTimes, getOptimalMethod } from '../api/aladhan'
 import { formatDateKey } from '../utils/dateHelpers'
 import { useLocalStorage } from './useLocalStorage'
 import { STORAGE_KEYS } from '../utils/constants'
@@ -8,6 +8,8 @@ import { STORAGE_KEYS } from '../utils/constants'
  * Custom hook for fetching and caching prayer times
  */
 export function usePrayerTimes(lat, lng, method = 2) {
+  // Use optimal method for location (e.g., Gulf Region for UAE)
+  const optimalMethod = lat && lng ? getOptimalMethod(lat, lng, method) : method
   const [prayerTimes, setPrayerTimes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -31,7 +33,7 @@ export function usePrayerTimes(lat, lng, method = 2) {
     setError(null)
 
     try {
-      const times = await fetchPrayerTimes(lat, lng, date, method)
+      const times = await fetchPrayerTimes(lat, lng, date, optimalMethod)
       
       // Clean up time strings (remove timezone offset if present)
       // Handle cases where times might be undefined or in different formats
@@ -59,7 +61,7 @@ export function usePrayerTimes(lat, lng, method = 2) {
     } finally {
       setLoading(false)
     }
-  }, [lat, lng, method, cachedTimes, setCachedTimes])
+  }, [lat, lng, optimalMethod, cachedTimes, setCachedTimes])
 
   // Fetch times when location changes
   useEffect(() => {

@@ -75,17 +75,22 @@ export function TodoItem({ todo, onClick }) {
           {/* Progress bar for items with progress */}
           {(isAzkar || todo.type === 'quran' || todo.type === 'tasbeeh') && !todo.notRequired && (
             <div className="mt-1">
-              <ProgressBar 
-                value={todo.progress} 
-                max={100} 
-                color={todo.completed ? "success" : "primary"}
-                className="h-1.5"
-              />
-              <div className="flex items-center justify-between mt-0.5">
-                <span className="text-xs text-text-light">{Math.round(todo.progress)}%</span>
-                {todo.count !== undefined && (
-                  <span className="text-xs text-text-light">{todo.count}</span>
-                )}
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <ProgressBar 
+                    value={todo.progress} 
+                    max={100} 
+                    color={todo.completed ? "success" : "primary"}
+                    className="h-1.5"
+                    showLabel={false}
+                  />
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-xs font-medium text-text min-w-[3rem] text-right">{Math.round(todo.progress)}%</span>
+                  {todo.count !== undefined && (
+                    <span className="text-xs text-text-light">{todo.count}</span>
+                  )}
+                </div>
               </div>
             </div>
           )}

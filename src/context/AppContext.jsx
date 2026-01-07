@@ -282,18 +282,27 @@ export function AppProvider({ children }) {
     const dayAzkar = azkar[date] || { morning: {}, evening: {} }
     // Handle old format
     if (typeof dayAzkar[type] === 'boolean') {
-      return { completed: 0, total: 0, percentage: 0 }
+      return { completed: dayAzkar[type] ? 7 : 0, total: 7, percentage: dayAzkar[type] ? 100 : 0 }
     }
-    const items = Object.values(dayAzkar[type] || {})
-    if (items.length === 0) {
-      return { completed: 0, total: 0, percentage: 0 }
-    }
-    const completed = items.filter(item => item.completed).length
-    const total = items.length
+    
+    // Always use 7 as the total (both morning and evening have 7 items)
+    const total = 7
+    const items = dayAzkar[type] || {}
+    
+    // Count how many of the 7 items are completed
+    // Check all items from the azkar data to see which ones are completed
+    const azkarList = type === 'morning' ? MORNING_AZKAR : EVENING_AZKAR
+    const completed = azkarList.filter(item => {
+      const itemData = items[item.id]
+      return itemData?.completed === true
+    }).length
+    
+    const percentage = Math.round((completed / total) * 100)
+    
     return {
       completed,
       total,
-      percentage: Math.round((completed / total) * 100)
+      percentage
     }
   }, [azkar])
 
